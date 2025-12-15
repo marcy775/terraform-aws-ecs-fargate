@@ -6,21 +6,17 @@ ALB + ECS(Fargate) + ECR + CloudWatch Logs の構成を構築するサンプル�
 ## Architecture
 <img width="2442" height="1489" alt="image" src="https://github.com/user-attachments/assets/c774b3ab-ea6c-478c-a4d2-dae79b526d36" />
 
-## 採用した AWS リソース
+## Overview
+Terraform を使って ALB + ECS(Fargate) 構成を構築するポートフォリオ
 
-- VPC  
-  - Public Subnet（ALB）
-  - Private Subnet（ECS Fargate）
+## Architecture
+- VPC
+- Public / Private Subnet
+- Internet Gateway
+- ALB
+- ECS (Fargate)
+- CloudWatch Logs
 
-- Application Load Balancer  
-  - インターネットからのリクエストを受け付け
-
-- ECS (Fargate)  
-  - コンテナ実行基盤
-  - ECR からイメージを pull
-
-- Amazon ECR  
-  - GitHub Actions からビルドしたイメージを push
-
-- CloudWatch Logs  
-  - ECS タスクのログを集約
+## Motivation
+手動作業ではなく Infrastructure as Code による再現性・安全性を重視し、
+SRE 的な視点でインフラを構築した。
