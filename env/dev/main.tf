@@ -22,3 +22,12 @@ module "alb" {
   vpc_id = module.vpc.vpc_id.id
   subnet_ids = module.vpc.public_subnet_ids
 }
+
+################################
+# ECR Module                   #
+################################
+module "ecr" {
+  source = "../../modules/ecr"
+
+  name = var.name
+}
