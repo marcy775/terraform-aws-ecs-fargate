@@ -24,10 +24,31 @@ module "alb" {
 }
 
 ################################
+# IAM Module                   #
+################################
+module "iam" {
+  source = "../../modules/iam"
+  name = var.name
+  policy_arn = var.policy_arn
+}
+
+################################
 # ECR Module                   #
 ################################
 module "ecr" {
   source = "../../modules/ecr"
 
   name = var.name
+}
+
+################################
+# ECS Module                   #
+################################
+module "ecs" {
+  source = "../../modules/ecs"
+
+  name = var.name
+  region = var.region  
+  ecr_repository_url = module.ecr.ecr_repository_url
+  tf_ecs_role_arn = module.iam.tf_ecs_role.arn
 }

@@ -1,3 +1,9 @@
+variable "name" {
+  description = "Name resource"
+  type = string
+}
+
+# VPC
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
   type = string
@@ -18,7 +24,17 @@ variable "private_subnet_cidrs" {
   type = list(string)
 }
 
-variable "name" {
-  description = "Name resource"
+# IAM
+variable "policy_arn" {
+  description = "IAM Policy ARN list"
+  type = list(string)
+}
+
+# ECS
+variable "ecr_repository_url" {
+  type = string
+}
+
+variable "region" {
   type = string
 }
