@@ -38,3 +38,7 @@ variable "ecr_repository_url" {
 variable "region" {
   type = string
 }
+
+variable "execution_role_arn" {
+  type = string
+}

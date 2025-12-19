@@ -50,5 +50,5 @@ module "ecs" {
   name = var.name
   region = var.region  
   ecr_repository_url = module.ecr.ecr_repository_url
-  tf_ecs_role_arn = module.iam.tf_ecs_role.arn
+  execution_role_arn = module.iam.tf_ecs_role.arn
 }

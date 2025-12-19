@@ -11,6 +11,6 @@ variable "region" {
   type = string
 }
 
-variable "tf_ecs_role_arn" {
+variable "execution_role_arn" {
   type = string
 }
