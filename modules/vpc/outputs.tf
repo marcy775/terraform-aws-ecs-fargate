@@ -5,3 +5,7 @@ output "vpc_id" {
 output "public_subnet_ids" {
   value = aws_subnet.tf_public_subnet[*].id
 }
+
+output "private_subnet_ids" {
+  value = aws_subnet.tf_private_subnet[*].id
+}

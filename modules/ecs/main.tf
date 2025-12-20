@@ -18,6 +18,30 @@ resource "aws_ecs_cluster" "tf_ecs" {
   }
 }
 
+# ECS Security Group
+resource "aws_security_group" "tf_ecs_sg" {
+  name = "${var.name}-ecs-task-sg"
+  vpc_id = var.vpc_id
+  description = "ECS security group"
+}
+
+# ECS sg ingress
+resource "aws_vpc_security_group_ingress_rule" "ecs_inbound" {
+  security_group_id = aws_security_group.tf_ecs_sg.id
+
+  ip_protocol = "tcp"
+  from_port = 80
+  to_port = 80
+  referenced_security_group_id = var.alb_sg_id
+}
+
+# ECS sg egress
+resource "aws_vpc_security_group_egress_rule" "ecs_outbound" {
+  security_group_id = aws_security_group.tf_ecs_sg.id
+  cidr_ipv4 = "0.0.0.0/0"
+  ip_protocol = "-1"
+}
+
 # ECS Task Definition
 resource "aws_ecs_task_definition" "tf_ecs_td" {
   family = "${var.name}-ecs-family"
@@ -25,7 +49,8 @@ resource "aws_ecs_task_definition" "tf_ecs_td" {
   network_mode = "awsvpc"
   cpu = 256
   memory = 512
-  execution_role_arn = var.execution_role_arn
+  execution_role_arn = var.role_arn
+
   container_definitions = jsonencode([
     {
         name = "${var.name}-container"
@@ -35,6 +60,8 @@ resource "aws_ecs_task_definition" "tf_ecs_td" {
                 containerPort = 80
             }
         ]
+
+        essential = true
 
         logConfiguration = {
             logDriver = "awslogs"
@@ -46,4 +73,26 @@ resource "aws_ecs_task_definition" "tf_ecs_td" {
         }
     }
   ])
+}
+
+# ECS service
+resource "aws_ecs_service" "tf_ecs_service" {
+  name = "${var.name}-ecs-service"
+  cluster = aws_ecs_cluster.tf_ecs.id
+  task_definition = aws_ecs_task_definition.tf_ecs_td.arn
+  desired_count = 1
+  launch_type = "FARGATE"
+  platform_version = "1.4.0"
+
+  network_configuration {
+    security_groups = [aws_security_group.tf_ecs_sg.id]
+    subnets = var.private_subnet_ids
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = var.alb_tg_arn
+    container_name = "${var.name}-container"
+    container_port = 80
+  }
 }

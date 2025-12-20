@@ -11,6 +11,22 @@ variable "region" {
   type = string
 }
 
-variable "execution_role_arn" {
+variable "role_arn" {
+  type = string
+}
+
+variable "private_subnet_ids" {
+  type = list(string)
+}
+
+variable "alb_tg_arn" {
+  type = string
+}
+
+variable "alb_sg_id" {
+  type = string
+}
+
+variable "vpc_id" {
   type = string
 }
