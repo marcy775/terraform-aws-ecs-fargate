@@ -2,6 +2,16 @@
 Terraform を用いて AWS 上に  
 ALB + ECS(Fargate) + ECR + CloudWatch Logs の構成を構築するサンプルです。
 
+本リポジトリはインフラ構築（Terraform）を主目的としていますが、
+学習およびデモ用途として、ECS 上で動作させる最小構成のアプリケーション
+（Dockerfile / GitHub Actions）も同一リポジトリ内に含めています。
+
+実運用を想定した場合は、以下のように
+- インフラ用リポジトリ
+- アプリケーション用リポジトリ
+
+を分離する構成が望ましいと考えています。
+
 ## Architecture
 <img width="2442" height="1489" alt="image" src="https://github.com/user-attachments/assets/c774b3ab-ea6c-478c-a4d2-dae79b526d36" />
 
