@@ -29,7 +29,6 @@ module "alb" {
 module "iam" {
   source = "../../modules/iam"
   name = var.name
-  policy_arn = var.policy_arn
 }
 
 ################################

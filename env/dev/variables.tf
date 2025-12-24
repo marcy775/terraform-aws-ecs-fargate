@@ -25,10 +25,6 @@ variable "private_subnet_cidrs" {
 }
 
 # IAM
-variable "policy_arn" {
-  description = "IAM Policy ARN list"
-  type = list(string)
-}
 
 # ECS
 variable "region" {
