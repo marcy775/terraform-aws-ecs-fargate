@@ -9,6 +9,10 @@ variable "vpc_cidr" {
   type = string
 }
 
+variable "region" {
+  type = string
+}
+
 variable "azs" {
   description = "Avalilability Zones"
   type = list(string)
@@ -25,8 +29,3 @@ variable "private_subnet_cidrs" {
 }
 
 # IAM
-
-# ECS
-variable "region" {
-  type = string
-}

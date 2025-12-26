@@ -1,6 +1,8 @@
 # VPC
 resource "aws_vpc" "tf_vpc" {
     cidr_block = var.vpc_cidr
+    enable_dns_support   = true
+    enable_dns_hostnames = true
     tags = {
       Name = "${var.name}-vpc"
     }
@@ -60,4 +62,60 @@ resource "aws_route_table_association" "public_subnet_cidrs" {
 
   subnet_id = aws_subnet.tf_public_subnet[count.index].id
   route_table_id = aws_route_table.tf_route_table.id
+}
+
+# VPC Endpoint SG
+resource "aws_security_group" "tf_endpoint_sg" {
+  name = "${var.name}-vpc-endpoint-sg"
+  description = "Allow HTTPS from VPC"
+  vpc_id = aws_vpc.tf_vpc.id
+}
+
+# VPC Endpoint SG inbound
+resource "aws_vpc_security_group_ingress_rule" "endpoint_sg_inbound" {
+  security_group_id = aws_security_group.tf_endpoint_sg.id
+
+  ip_protocol = "tcp"
+  from_port = 443
+  to_port = 443
+  cidr_ipv4 = aws_vpc.tf_vpc.cidr_block
+}
+
+# VPC Endpoint SG outbound
+resource "aws_vpc_security_group_egress_rule" "endpoint_sg_outbound" {
+  security_group_id = aws_security_group.tf_endpoint_sg.id
+  ip_protocol = "-1"
+  cidr_ipv4 = "0.0.0.0/0"
+}
+
+# VPC Endpoint
+resource "aws_vpc_endpoint" "ecr_api" {
+  vpc_id = aws_vpc.tf_vpc.id
+  service_name = "com.amazonaws.${var.region}.ecr.api"
+  vpc_endpoint_type = "Interface"
+
+  subnet_ids = aws_subnet.tf_private_subnet[*].id
+  security_group_ids = [ aws_security_group.tf_endpoint_sg.id ]
+  private_dns_enabled = true
+}
+
+resource "aws_vpc_endpoint" "ecr_dkr" {
+  vpc_id = aws_vpc.tf_vpc.id
+  service_name = "com.amazonaws.${var.region}.ecr.dkr"
+  vpc_endpoint_type = "Interface"
+
+  subnet_ids = aws_subnet.tf_private_subnet[*].id
+  security_group_ids = [ aws_security_group.tf_endpoint_sg.id ]
+  private_dns_enabled = true
+}
+
+# CloudWatch Logs Endpoint
+resource "aws_vpc_endpoint" "logs" {
+  vpc_id = aws_vpc.tf_vpc.id
+  service_name = "com.amazonaws.${var.region}.logs"
+  vpc_endpoint_type = "Interface"
+
+  subnet_ids = aws_subnet.tf_private_subnet[*].id
+  security_group_ids = [ aws_security_group.tf_endpoint_sg.id ]
+  private_dns_enabled = true
 }
