@@ -32,7 +32,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t $ECR_REPOSITORY .
+          docker build -t $ECR_REPOSITORY ./app
 
       - name: Tag Docker image
         run: |
