@@ -35,12 +35,12 @@ jobs:
       - name: Tag Docker image
         run: |
           docker tag $ECR_REPOSITORY:latest \
-            $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
+            729166439606.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
 
       - name: Push Docker image to ECR
         run: |
           docker push \
-            $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
+            729166439606.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
       
       - name: Force new ECS deployment
         run: |
