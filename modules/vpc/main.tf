@@ -43,7 +43,7 @@ resource "aws_internet_gateway" "tf_igw" {
 }
 
 # public route table
-resource "aws_route_table" "tf_route_table" {
+resource "aws_route_table" "tf_public_route" {
   vpc_id = aws_vpc.tf_vpc.id
 
   route {
@@ -61,8 +61,26 @@ resource "aws_route_table_association" "public_subnet_cidrs" {
   count = length(var.public_subnet_cidrs)
 
   subnet_id = aws_subnet.tf_public_subnet[count.index].id
-  route_table_id = aws_route_table.tf_route_table.id
+  route_table_id = aws_route_table.tf_public_route.id
 }
+
+# private route table
+resource "aws_route_table" "tf_private_route" {
+  vpc_id = aws_vpc.tf_vpc.id
+
+  tags = {
+    Name = "${var.name}-private-route-table"
+  }
+}
+
+# route table association
+resource "aws_route_table_association" "private_subnet_cidrs" {
+  count = length(var.private_subnet_cidrs)
+
+  subnet_id = aws_subnet.tf_private_subnet[count.index].id
+  route_table_id = aws_route_table.tf_private_route.id
+}
+
 
 # VPC Endpoint SG
 resource "aws_security_group" "tf_endpoint_sg" {
@@ -118,4 +136,13 @@ resource "aws_vpc_endpoint" "logs" {
   subnet_ids = aws_subnet.tf_private_subnet[*].id
   security_group_ids = [ aws_security_group.tf_endpoint_sg.id ]
   private_dns_enabled = true
+}
+
+# S3 Endpoint
+resource "aws_vpc_endpoint" "S3" {
+  vpc_id = aws_vpc.tf_vpc.id
+  service_name = "com.amazonaws.${var.region}.s3"
+  vpc_endpoint_type = "Gateway"
+
+  route_table_ids = aws_route_table.tf_private_route[*].id
 }
