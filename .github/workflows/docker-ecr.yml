@@ -9,8 +9,6 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: ap-northeast-1
-  AWS_ACCOUNT_ID: 729166439606
   ECR_REPOSITORY: kirigeso-ecr
 
 jobs:
@@ -24,8 +22,8 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/kirigeso-cicd-oidc-role
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::729166439606:role/kirigeso-cicd-oidc-role
+          aws-region: ap-northeast-1
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
@@ -43,3 +41,10 @@ jobs:
         run: |
           docker push \
             $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
+      
+      - name: Force new ECS deployment
+        run: |
+          aws ecs update-service \
+            --cluster kirigeso-ecs \
+            --service kirigeso-ecs-service \
+            --force-new-deployment
