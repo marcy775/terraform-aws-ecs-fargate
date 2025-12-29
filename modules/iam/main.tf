@@ -53,7 +53,33 @@ resource "aws_iam_role" "tf_cicd_oidc_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "tf_cicd_oidc_role_add" {
-  role = aws_iam_role.tf_cicd_oidc_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+resource "aws_iam_role_policy" "cicd_policy" {
+  name = "${var.name}-cicd-oidc-policy"
+  role = aws_iam_role.tf_cicd_oidc_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:CompleteLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:InitiateLayerUpload",
+          "ecr:PutImage"         
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecs:UpdateService",
+          "ecs:DescribeServices",
+          "ecs:DescribeTaskDefinition"    
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 }
