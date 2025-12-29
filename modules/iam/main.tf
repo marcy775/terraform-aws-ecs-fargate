@@ -63,11 +63,12 @@ resource "aws_iam_role_policy" "cicd_policy" {
       {
         Effect = "Allow"
         Action = [
+          "ecr:GetAuthorizationToken",
           "ecr:BatchCheckLayerAvailability",
           "ecr:CompleteLayerUpload",
           "ecr:UploadLayerPart",
           "ecr:InitiateLayerUpload",
-          "ecr:PutImage"         
+          "ecr:PutImage"        
         ]
         Resource = "*"
       },
