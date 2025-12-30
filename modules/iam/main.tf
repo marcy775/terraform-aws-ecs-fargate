@@ -110,10 +110,7 @@ resource "aws_iam_role" "tf_cicd_oidc_role" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = [
-              "repo:marcy775/terraform-aws-ecs-fargate:ref:refs/heads/*",
-              "repo:marcy775/terraform-aws-ecs-fargate:ref:refs/pull/*"
-            ]
+            "token.actions.githubusercontent.com:sub" = "repo:marcy775/terraform-aws-ecs-fargate:*"
           }
         }
       }
