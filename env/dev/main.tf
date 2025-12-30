@@ -1,13 +1,3 @@
-terraform {
-  backend "s3" {
-    bucket = "kirigeso-terraform-bucket"
-    key = "global/terraform.tfstate"
-    region = "ap-northeast-1"
-    dynamodb_table = "kirigeso-lock"
-    encrypt = true
-  }
-}
-
 ################################
 # VPC Module                   #
 ################################
@@ -66,22 +56,4 @@ module "ecs" {
   alb_tg_arn = module.alb.tf_alb_tg.arn
   alb_sg_id = module.alb.alb_sg.id
   private_subnet_ids = module.vpc.private_subnet_ids
-}
-
-################################
-# DynamoDB Module              #
-################################
-module "dynamodb" {
-  source = "../../modules/dynamodb"
-
-  name = var.name
-}
-
-################################
-# S3 Module                    #
-################################
-module "s3" {
-  source = "../../modules/s3"
-
-  name = var.name
 }
