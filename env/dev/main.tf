@@ -1,10 +1,10 @@
 terraform {
   backend "s3" {
-    bucket = "kirigeso-terraform-bucket"
-    key = "global/terraform.tfstate"
-    region = "ap-northeast-1"
+    bucket         = "kirigeso-terraform-bucket"
+    key            = "global/terraform.tfstate"
+    region         = "ap-northeast-1"
     dynamodb_table = "kirigeso-lock"
-    encrypt = true
+    encrypt        = true
   }
 }
 
@@ -14,12 +14,12 @@ terraform {
 module "vpc" {
   source = "../../modules/vpc"
 
-  name = var.name
+  name     = var.name
   vpc_cidr = var.vpc_cidr
-  azs = var.azs
-  region = var.region
+  azs      = var.azs
+  region   = var.region
 
-  public_subnet_cidrs = var.public_subnet_cidrs
+  public_subnet_cidrs  = var.public_subnet_cidrs
   private_subnet_cidrs = var.private_subnet_cidrs
 }
 
@@ -29,8 +29,8 @@ module "vpc" {
 module "alb" {
   source = "../../modules/alb"
 
-  name = var.name
-  vpc_id = module.vpc.vpc_id.id
+  name       = var.name
+  vpc_id     = module.vpc.vpc_id.id
   subnet_ids = module.vpc.public_subnet_ids
 }
 
@@ -39,7 +39,7 @@ module "alb" {
 ################################
 module "iam" {
   source = "../../modules/iam"
-  name = var.name
+  name   = var.name
   region = var.region
 }
 
@@ -58,13 +58,13 @@ module "ecr" {
 module "ecs" {
   source = "../../modules/ecs"
 
-  name = var.name
-  region = var.region
-  vpc_id = module.vpc.vpc_id.id
+  name               = var.name
+  region             = var.region
+  vpc_id             = module.vpc.vpc_id.id
   ecr_repository_url = module.ecr.ecr_repository_url
-  role_arn = module.iam.tf_ecs_role.arn
-  alb_tg_arn = module.alb.tf_alb_tg.arn
-  alb_sg_id = module.alb.alb_sg.id
+  role_arn           = module.iam.tf_ecs_role.arn
+  alb_tg_arn         = module.alb.tf_alb_tg.arn
+  alb_sg_id          = module.alb.alb_sg.id
   private_subnet_ids = module.vpc.private_subnet_ids
 }
 

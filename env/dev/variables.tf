@@ -1,12 +1,12 @@
 variable "name" {
   description = "Name resource"
-  type = string
+  type        = string
 }
 
 # VPC
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
-  type = string
+  type        = string
 }
 
 variable "region" {
@@ -15,17 +15,17 @@ variable "region" {
 
 variable "azs" {
   description = "Avalilability Zones"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "public_subnet_cidrs" {
   description = "CIDR blocks for public subnets"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "private_subnet_cidrs" {
   description = "CIDR blocks for private subnets"
-  type = list(string)
+  type        = list(string)
 }
 
 # IAM
