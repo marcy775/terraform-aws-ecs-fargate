@@ -22,7 +22,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::729166439606:role/kirigeso-cicd-oidc-role
+          role-to-assume: arn:aws:iam::729166439606:role/kirigeso-ecs-oidc-role
           aws-region: ap-northeast-1
 
       - name: Login to Amazon ECR
