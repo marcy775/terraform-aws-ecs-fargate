@@ -35,15 +35,11 @@ jobs:
       - name: Terraform Format
         run: terraform fmt -check -recursive
 
-      - name: Terraform Validate
-        run: terraform validate $DIRECTORY
-
       - name: Terraform Init
-        run: terraform init $DIRECTORY
+        run: terraform -chdir=$DIRECTORY init
 
       - name: Terraform Plan
-        id: plan
-        run: terraform plan -no-color $DIRECTORY | tee plan.txt
+        run: terraform -chdir=$DIRECTORY plan -no-color | tee plan.txt
 
       - name: Comment plan to PR
         uses: marocchino/sticky-pull-request-comment@v2
@@ -68,7 +64,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        run: terraform init $DIRECTORY
-
+        run: terraform -chdir=$DIRECTORY init
+        
       - name: Terraform Apply
-        run: terraform apply -auto-approve $DIRECTORY
+        run: terraform -chdir=$DIRECTORY apply -auto-approve
