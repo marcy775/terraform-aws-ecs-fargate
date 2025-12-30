@@ -20,15 +20,15 @@ resource "aws_iam_role" "tf_ecs_role" {
 }
 
 resource "aws_iam_role_policy_attachment" "tf_ecs_role_add" {
-  role = aws_iam_role.tf_ecs_role.name
+  role       = aws_iam_role.tf_ecs_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 
 # GitHub Actions role
 resource "aws_iam_openid_connect_provider" "github" {
-  url = "https://token.actions.githubusercontent.com"
-  client_id_list = [ "sts.amazonaws.com" ]
+  url            = "https://token.actions.githubusercontent.com"
+  client_id_list = ["sts.amazonaws.com"]
 }
 
 
@@ -74,7 +74,7 @@ resource "aws_iam_role_policy" "ecs_cicd_policy" {
           "ecr:CompleteLayerUpload",
           "ecr:UploadLayerPart",
           "ecr:InitiateLayerUpload",
-          "ecr:PutImage"        
+          "ecr:PutImage"
         ]
         Resource = "*"
       },
@@ -84,7 +84,7 @@ resource "aws_iam_role_policy" "ecs_cicd_policy" {
         Action = [
           "ecs:UpdateService",
           "ecs:DescribeServices",
-          "ecs:DescribeTaskDefinition"    
+          "ecs:DescribeTaskDefinition"
         ]
         Resource = "*"
       }

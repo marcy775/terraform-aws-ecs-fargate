@@ -1,6 +1,6 @@
 variable "name" {
   description = "Name resource"
-  type = string
+  type        = string
 }
 
 variable "vpc_id" {
