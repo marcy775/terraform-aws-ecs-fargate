@@ -7,7 +7,7 @@
 
 - Infrastructure as Code による再現性・安全性のあるインフラ構築
 - GitHub Actions によるアプリケーションの自動デプロイ
-- SRE 視点での運用・監視・権限設計の学習
+- SRE視点でのヘルスチェック・ログ・権限設計の実践
 
 ## 構成概要
 
@@ -18,7 +18,6 @@
 ## アーキテクチャ図
 
 <img width="2442" height="1489" alt="image" src="https://github.com/user-attachments/assets/c774b3ab-ea6c-478c-a4d2-dae79b526d36" />
-
 
 - VPC
 - Public / Private Subnet
@@ -74,6 +73,27 @@ Terraform の構成は以下の2レイヤーに分離しています：
 - `main` ブランチに push → GitHub Actions 実行
 - Docker build → ECR push
 - `aws ecs update-service` により ECS タスクが再起動
+- 新しいタスクが起動し、ALB のヘルスチェックを通過後に切り替え
+
+## IAM / セキュリティ設計
+
+- GitHub Actions から AWS にアクセスするために OIDC を使用
+- Terraform module において IAM ロールを明示的に分離
+- ECS タスクロールに最小権限を付与（ECR pull / CloudWatch Logs write）
+
+## 運用設計（監視・ログ）
+
+- ECS タスクのログは CloudWatch Logs に自動送信
+- ALB のヘルスチェックを `/health` に設定し、デプロイ安定性を確保
+- ECS サービスは `minimumHealthyPercent` を調整し、ローリング更新を制御
+
+
+## 改善ポイント / 今後の展望
+
+- Terraform の CI/CD（plan/apply）を GitHub Actions に統合する構成を検討中
+- ECS タスク定義のバージョン管理をより明示的に行いたい
+- ECS 無停止デプロイの実装
+
 
 ## 補足
 
