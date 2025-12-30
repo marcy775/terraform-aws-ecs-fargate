@@ -140,8 +140,8 @@ resource "aws_iam_role_policy" "tf_backend_policy" {
           "s3:ListBucket"
         ]
         Resource = [
-          "arn:aws:s3:::${var.name}-terraform-state",
-          "arn:aws:s3:::${var.name}-terraform-state/*"
+          "arn:aws:s3:::${var.name}-terraform-bucket",
+          "arn:aws:s3:::${var.name}-terraform-bucket/*"
         ]
       },
       # DynamoDB lock
