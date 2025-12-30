@@ -167,6 +167,7 @@ resource "aws_iam_role_policy" "tf_resource_policy" {
           "ecs:*",
           "elasticloadbalancing:*",
           "ecr:*",
+          "vpc:*",
           "iam:CreateRole",
           "iam:DeleteRole",
           "iam:AttachRolePolicy",
