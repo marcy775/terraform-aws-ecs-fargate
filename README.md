@@ -16,12 +16,13 @@
 - **CloudWatch Logs**：コンテナログの収集
 
 ## アーキテクチャ図
+<img width="2597" height="1015" alt="image" src="https://github.com/user-attachments/assets/5f4c1511-4d2e-455f-8822-e0d126027558" />
 
-<img width="2574" height="1031" alt="image" src="https://github.com/user-attachments/assets/24e2e792-a680-4a28-abb4-8417ec3af4fa" />
 
 - VPC
 - Public / Private Subnet
 - Internet Gateway
+- IAM(OIDC) 
 - ALB
 - ECS (Fargate)
 - ECR
