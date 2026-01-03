@@ -17,7 +17,7 @@
 
 ## アーキテクチャ図
 
-<img width="2442" height="1489" alt="image" src="https://github.com/user-attachments/assets/c774b3ab-ea6c-478c-a4d2-dae79b526d36" />
+<img width="2574" height="1031" alt="image" src="https://github.com/user-attachments/assets/24e2e792-a680-4a28-abb4-8417ec3af4fa" />
 
 - VPC
 - Public / Private Subnet
