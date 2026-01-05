@@ -57,3 +57,23 @@ module "ecs" {
   alb_sg_id = module.alb.alb_sg.id
   private_subnet_ids = module.vpc.private_subnet_ids
 }
+################################
+# SNS Module                   #
+################################
+module "sns" {
+  source = "../../modules/sns"
+
+  name = var.name
+  email = var.email
+}
+
+
+################################
+# CloudWatch Module            #
+################################
+module "cloudwatch" {
+  source = "../../modules/cloudwach"
+
+  name = var.name
+  sns_topic_arn = module.sns.sns_topic_arn
+}

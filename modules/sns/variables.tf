@@ -3,6 +3,6 @@ variable "name" {
   type = string
 }
 
-variable "sns_topic_arn" {
+variable "email" {
   type = string
 }

@@ -28,4 +28,8 @@ variable "private_subnet_cidrs" {
   type = list(string)
 }
 
-# IAM
+# SNS
+variable "email" {
+  description = "SNS topic subscription email"
+  type = string
+}
