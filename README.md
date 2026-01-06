@@ -11,12 +11,13 @@
 
 ## 構成概要
 
-- **Terraform**：インフラ構築（VPC, Subnet, ALB, ECS, ECR, IAM）
+- **Terraform**：インフラ構築（VPC, Subnet, ALB, ECS, ECR, IAM, CloudWatch）
 - **GitHub Actions**：Docker build → ECR push → ECS 更新
-- **CloudWatch Logs**：コンテナログの収集
+- **CloudWatch**：コンテナログの収集/メトリクス監視/アラーム通知(SNS)
 
-## アーキテクチャ図
-<img width="2597" height="1015" alt="image" src="https://github.com/user-attachments/assets/5f4c1511-4d2e-455f-8822-e0d126027558" />
+## 構成図
+<img width="2964" height="1402" alt="image" src="https://github.com/user-attachments/assets/aa0a6893-9261-4949-9169-25c440ff2b99" />
+
 
 
 - VPC
@@ -26,7 +27,7 @@
 - ALB
 - ECS (Fargate)
 - ECR
-- CloudWatch Logs
+- CloudWatch(Logs/Alarm)
 
 ## ディレクトリ構成
 ```
@@ -36,11 +37,16 @@
 │       ├── variables.tf
 │       └── terraform.tfvars
 ├── modules/
-│   ├── vpc/
+│   └── vpc/
+│       ├── main.tf
+│       ├── variables.tf
+│       └── terraform.tfvars
 │   ├── alb/
 │   ├── ecs/
 │   ├── ecr/
 │   └── iam/
+│   └── sns/
+│   └── cloudwatch/
 ├── .github/
 │   └── workflows/
 │       └── docker-ecr.yml
@@ -76,6 +82,21 @@ Terraform の構成は以下の2レイヤーに分離しています：
 - `aws ecs update-service` により ECS タスクが再起動
 - 新しいタスクが起動し、ALB のヘルスチェックを通過後に切り替え
 
+## ECS 自動ロールバック設計
+ECS の Deployment Circuit Breaker を有効化し、 デプロイ失敗時の自動ロールバックを実装しています。
+```
+deployment_controller {
+type = "ECS"
+}
+
+
+deployment_circuit_breaker {
+enable = true
+rollback = true
+}
+```
+- タスク起動失敗やヘルスチェック NG 時に自動で前バージョンへ復旧
+
 ## IAM / セキュリティ設計
 
 - GitHub Actions から AWS にアクセスするために OIDC を使用
@@ -83,11 +104,10 @@ Terraform の構成は以下の2レイヤーに分離しています：
 - ECS タスクロールに最小権限を付与（ECR pull / CloudWatch Logs write）
 
 ## 運用設計（監視・ログ）
-
-- ECS タスクのログは CloudWatch Logs に自動送信
 - ALB のヘルスチェックを `/health` に設定し、デプロイ安定性を確保
+- ECS タスクのログは CloudWatch Logs に自動送信
 - ECS サービスは `minimumHealthyPercent` を調整し、ローリング更新を制御
-
+- ECS サービスの CPU / メモリ使用率 を監視 > SNS 経由で メール通知 を送信
 
 ## 改善ポイント / 今後の展望
 

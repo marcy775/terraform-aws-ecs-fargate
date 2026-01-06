@@ -19,13 +19,14 @@ resource "aws_iam_role" "tf_ecs_role" {
   })
 }
 
+# ECR task execution policy attach
 resource "aws_iam_role_policy_attachment" "tf_ecs_role_add" {
   role = aws_iam_role.tf_ecs_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 
-# GitHub Actions role
+# GitHub Actions OIDC
 resource "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
   client_id_list = [ "sts.amazonaws.com" ]

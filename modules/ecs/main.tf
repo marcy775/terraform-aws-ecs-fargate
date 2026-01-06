@@ -82,9 +82,18 @@ resource "aws_ecs_service" "tf_ecs_service" {
   name = "${var.name}-ecs-service"
   cluster = aws_ecs_cluster.tf_ecs.id
   task_definition = aws_ecs_task_definition.tf_ecs_td.arn
-  desired_count = 1
+  desired_count = 2
   launch_type = "FARGATE"
   platform_version = "1.4.0"
+
+  deployment_controller {
+    type = "ECS"
+  }
+
+  deployment_circuit_breaker {
+    enable = true
+    rollback = true
+  }
 
   network_configuration {
     security_groups = [aws_security_group.tf_ecs_sg.id]
