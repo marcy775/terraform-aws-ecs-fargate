@@ -1,7 +1,7 @@
 # terraform-aws-ecs-fargate
 
 このリポジトリは、Terraform を用いて AWS 上に  
-**ALB + ECS(Fargate) + ECR + CloudWatch Logs** の構成を構築するサンプルです。
+**ALB + ECS(Fargate) + ECR + CloudWatch** の構成を構築するサンプルです。
 
 ## 目的
 
@@ -16,8 +16,7 @@
 - **CloudWatch**：コンテナログの収集/メトリクス監視/アラーム通知(SNS)
 
 ## 構成図
-<img width="2964" height="1402" alt="image" src="https://github.com/user-attachments/assets/aa0a6893-9261-4949-9169-25c440ff2b99" />
-
+<img width="2992" height="1473" alt="image" src="https://github.com/user-attachments/assets/a2abbcf8-1ad9-4abd-be14-2afd90e0302d" />
 
 
 - VPC
@@ -27,6 +26,7 @@
 - ALB
 - ECS (Fargate)
 - ECR
+- SNS
 - CloudWatch(Logs/Alarm)
 
 ## ディレクトリ構成
@@ -37,15 +37,12 @@
 │       ├── variables.tf
 │       └── terraform.tfvars
 ├── modules/
-│   └── vpc/
-│       ├── main.tf
-│       ├── variables.tf
-│       └── terraform.tfvars
+│   ├── vpc/
 │   ├── alb/
 │   ├── ecs/
 │   ├── ecr/
-│   └── iam/
-│   └── sns/
+│   ├── iam/
+│   ├── sns/
 │   └── cloudwatch/
 ├── .github/
 │   └── workflows/
@@ -84,17 +81,17 @@ Terraform の構成は以下の2レイヤーに分離しています：
 
 ## ECS 自動ロールバック設計
 ECS の Deployment Circuit Breaker を有効化し、 デプロイ失敗時の自動ロールバックを実装しています。
-```
+```hcl
 deployment_controller {
-type = "ECS"
+  type = "ECS"
 }
-
 
 deployment_circuit_breaker {
-enable = true
-rollback = true
+  enable   = true
+  rollback = true
 }
 ```
+
 - タスク起動失敗やヘルスチェック NG 時に自動で前バージョンへ復旧
 
 ## IAM / セキュリティ設計
@@ -107,7 +104,19 @@ rollback = true
 - ALB のヘルスチェックを `/health` に設定し、デプロイ安定性を確保
 - ECS タスクのログは CloudWatch Logs に自動送信
 - ECS サービスは `minimumHealthyPercent` を調整し、ローリング更新を制御
-- ECS サービスの CPU / メモリ使用率 を監視 > SNS 経由で メール通知 を送信
+- ECS サービスの CPU / メモリ使用率（80% 閾値）を監視
+- 閾値超過時に CloudWatch Alarm を発火し、SNS 経由でメール通知
+
+## なぜ ECS（Fargate）を選んだか
+
+本構成では、コンテナ実行基盤として Amazon ECS（Fargate）を採用しています。
+
+- **運用負荷を最小化できるマネージド実行環境**
+  - EC2 のキャパシティ管理や OS パッチが不要
+  - アプリケーションとインフラ設計に集中できる
+- **EKS との比較**
+  - 本リポジトリは学習・デモ用途かつ実務想定のため
+  - クラスタ運用コストが高い EKS ではなく、シンプルな ECS を選択
 
 ## 改善ポイント / 今後の展望
 
