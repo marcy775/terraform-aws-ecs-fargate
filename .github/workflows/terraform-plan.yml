@@ -16,7 +16,7 @@ permissions:
 env:
     AWS_ROLE_ARN: "arn:aws:iam::729166439606:role/kirigeso-ecs-oidc-role"
     AWS_REGION: "ap-northeast-1"
-    TF_WORLING_DIR: "./env/dev"
+    TF_WORKING_DIR: "./env/dev"
 
 jobs:
     terraform-plan:
@@ -24,7 +24,7 @@ jobs:
         runs-on: ubuntu-latest
         defaults:
             run:
-                working-directory: ${{ env.TF_WORLING_DIR }}
+                working-directory: ${{ env.TF_WORKING_DIR }}
 
         steps:
             - name: Checkout
@@ -62,7 +62,8 @@ jobs:
               with:
                 github-token: ${{ secrets.GITHUB_TOKEN }}
                 script: |
-                  const output = `#### Terraform Plan \`${{ steps.plan.outcome }}\`
+                  const output = 
+                  `#### Terraform Plan \`${{ steps.plan.outcome }}\`
                   #### Initialization \`${{ steps.init.outcome }}\`
                   #### Validation \`${{ steps.validate.outcome }}\`
 
@@ -71,3 +72,11 @@ jobs:
                   \`\`\`${process.env.PLAN}\`\`\`
 
                   </details>
+
+                  *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.TF_WORKING_DIR }}\`*`;
+                  github.rest.issues.createComment({
+                    issue_number: context.issue.number,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: output
+                  })
