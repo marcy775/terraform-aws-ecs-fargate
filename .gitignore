@@ -2,9 +2,6 @@
 .terraform/
 *.tfstate
 *.tfstate.*
-terraform.tfvars
 
-# OS / Editor
-.DS_Store
-.vscode/
-.idea/
+# terraform.tfvars はコメントアウトするか、削除してGit管理下に置く！
+# *.tfvars
