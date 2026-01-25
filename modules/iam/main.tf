@@ -113,6 +113,21 @@ policy = jsonencode({
           "ecs:DescribeTaskDefinition"
         ]
         Resource = "*"
+      },
+      # 4. SNS
+      {
+        Effect = "Allow"
+        Action = [
+          "sns:Publish",
+          "sns:Subscribe",
+          "sns:Unsubscribe",
+          "sns:CreateTopic",
+          "sns:DeleteTopic",
+          "sns:ListTopics",
+          "sns:GetTopicAttributes",
+          "sns:SetTopicAttributes"
+        ]
+        Resource = "*"
       }
     ]
   })
