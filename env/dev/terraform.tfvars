@@ -19,4 +19,4 @@ private_subnet_cidrs = [
 
 region = "ap-northeast-1"
 
-email = "dummy@example.com"
+email = "dummy-test@example.com"
