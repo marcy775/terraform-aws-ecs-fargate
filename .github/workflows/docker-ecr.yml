@@ -3,13 +3,19 @@ name: Build and Push Docker Image to ECR
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'app/**'
 
 permissions:
   id-token: write
   contents: read
 
 env:
+  AWS_REGION: ap-northeast-1
+  AWS_ROLE_ARN: arn:aws:iam::729166439606:role/kirigeso-ecs-oidc-role
   ECR_REPOSITORY: kirigeso-ecr
+  ECS_CLUSTER: kirigeso-ecs
+  ECS_SERVICE: kirigeso-ecs-service
 
 jobs:
   build-and-push:
@@ -22,29 +28,28 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::729166439606:role/kirigeso-ecs-oidc-role
-          aws-region: ap-northeast-1
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build Docker image
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REPOSITORY ./app
+          # Build
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./app
+          
+          # Push
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-      - name: Tag Docker image
-        run: |
-          docker tag $ECR_REPOSITORY:latest \
-            729166439606.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
-
-      - name: Push Docker image to ECR
-        run: |
-          docker push \
-            729166439606.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
-      
       - name: Force new ECS deployment
         run: |
           aws ecs update-service \
-            --cluster kirigeso-ecs \
-            --service kirigeso-ecs-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE }} \
             --force-new-deployment
