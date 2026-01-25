@@ -62,14 +62,36 @@ resource "aws_iam_role" "ecs_cicd_oidc_role" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_cicd_readonly" {
+  role       = aws_iam_role.ecs_cicd_oidc_role.name
+  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+}
+
 resource "aws_iam_role_policy" "ecs_cicd_policy" {
   name = "${var.name}-ecs-oidc-policy"
   role = aws_iam_role.ecs_cicd_oidc_role.id
 
-  policy = jsonencode({
+policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      # ECR push
+      # 1. Terraform Backend Access (State & Lock)
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+          "s3:GetObject",
+          "s3:PutObject",
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem"
+        ]
+        Resource = [
+            "arn:aws:s3:::${var.name}-bucket",
+            "arn:aws:s3:::${var.name}-bucket/*",
+            "arn:aws:dynamodb:ap-northeast-1:*:table/${var.name}-dynamodb-table"
+        ]
+      },
+      # 2. ECR push (既存)
       {
         Effect = "Allow"
         Action = [
@@ -78,17 +100,17 @@ resource "aws_iam_role_policy" "ecs_cicd_policy" {
           "ecr:CompleteLayerUpload",
           "ecr:UploadLayerPart",
           "ecr:InitiateLayerUpload",
-          "ecr:PutImage"        
+          "ecr:PutImage"
         ]
         Resource = "*"
       },
-      # ECS deploy
+      # 3. ECS deploy (既存)
       {
         Effect = "Allow"
         Action = [
           "ecs:UpdateService",
           "ecs:DescribeServices",
-          "ecs:DescribeTaskDefinition"    
+          "ecs:DescribeTaskDefinition"
         ]
         Resource = "*"
       }

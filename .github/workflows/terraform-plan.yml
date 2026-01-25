@@ -1,0 +1,73 @@
+name: "Terraform Plan"
+
+on:
+    pull_request:
+        branches:
+            - main
+        paths:
+            - 'env/**'
+            - 'modules/**'
+
+permissions:
+    id-token: write
+    contents: read
+    pull-requests: write
+
+env:
+    AWS_ROLE_ARN: "arn:aws:iam::729166439606:role/kirigeso-ecs-oidc-role"
+    AWS_REGION: "ap-northeast-1"
+    TF_WORLING_DIR: "./env/dev"
+
+jobs:
+    terraform-plan:
+        name: "Terraform Plan"
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: ${{ env.TF_WORLING_DIR }}
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Configure AWS credentials (OIDC)
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: ${{ env.AWS_ROLE_ARN }}
+                aws-region: ${{ env.AWS_REGION }}
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v3
+              with:
+                terraform_version: "1.14.2"
+
+            - name: Terraform Init
+              id: init
+              run: terraform init
+            
+            - name: Terraform Validate
+              id: validate
+              run: terraform validate -no-color
+            
+            - name: Terraform Plan
+              id: plan
+              run: terraform plan -no-color
+              continue-on-error: true
+            
+            - name: Comment Plan Result
+              uses: actions/github-script@v7
+              if: github.event_name == 'pull_request'
+              env:
+                PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+              with:
+                github-token: ${{ secrets.GITHUB_TOKEN }}
+                script: |
+                  const output = `#### Terraform Plan \`${{ steps.plan.outcome }}\`
+                  #### Initialization \`${{ steps.init.outcome }}\`
+                  #### Validation \`${{ steps.validate.outcome }}\`
+
+                  <details><summary>Show Plan</summary>
+
+                  \`\`\`${process.env.PLAN}\`\`\`
+
+                  </details>

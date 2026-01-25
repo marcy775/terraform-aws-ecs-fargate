@@ -1,3 +1,14 @@
+# backend.tf
+terraform {
+  backend "s3" {
+    bucket = "kirigeso-bucket"
+    key = "terraform.tfstate"
+    region = "ap-northeast-1"
+    encrypt = true
+    dynamodb_table = "kirigeso-dynamodb-table"
+  }
+}
+
 ################################
 # VPC Module                   #
 ################################
@@ -76,4 +87,21 @@ module "cloudwatch" {
 
   name = var.name
   sns_topic_arn = module.sns.sns_topic_arn
+}
+
+################################
+# S3 Module                    #
+################################
+module "s3" {
+  source = "../../modules/s3"
+
+  name = var.name
+}
+
+################################
+# Dynamo DB Module             #
+################################
+module "dynamodb" {
+  source = "../../modules/dynamodb"
+  name = var.name
 }
