@@ -74,7 +74,9 @@ resource "aws_iam_role_policy" "ecs_cicd_policy" {
 policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      # 1. Terraform Backend Access (State & Lock)
+      # -------------------------------------------------------
+      # 1. State Management (Terraform Backend)
+      # -------------------------------------------------------
       {
         Effect = "Allow"
         Action = [
@@ -86,12 +88,15 @@ policy = jsonencode({
           "dynamodb:DeleteItem"
         ]
         Resource = [
-            "arn:aws:s3:::${var.name}-bucket",
-            "arn:aws:s3:::${var.name}-bucket/*",
-            "arn:aws:dynamodb:ap-northeast-1:*:table/${var.name}-dynamodb-table"
+          "arn:aws:s3:::${var.name}-bucket",
+          "arn:aws:s3:::${var.name}-bucket/*",
+          "arn:aws:dynamodb:*:*:table/${var.name}-dynamodb-table"
         ]
       },
-      # 2. ECR push (既存)
+
+      # -------------------------------------------------------
+      # 2. Container Registry (ECR)
+      # -------------------------------------------------------
       {
         Effect = "Allow"
         Action = [
@@ -100,24 +105,49 @@ policy = jsonencode({
           "ecr:CompleteLayerUpload",
           "ecr:UploadLayerPart",
           "ecr:InitiateLayerUpload",
-          "ecr:PutImage"
+          "ecr:PutImage",
+          "ecr:DescribeRepositories",
+          "ecr:ListImages"
         ]
         Resource = "*"
       },
-      # 3. ECS deploy (既存)
+
+      # -------------------------------------------------------
+      # 3. Compute & Deployment (ECS)
+      # -------------------------------------------------------
       {
         Effect = "Allow"
         Action = [
           "ecs:UpdateService",
           "ecs:DescribeServices",
-          "ecs:DescribeTaskDefinition"
+          "ecs:DescribeTaskDefinition",
+          "ecs:RegisterTaskDefinition",
+          "ecs:CreateService",
+          "ecs:UpdateCluster",
+          "ecs:DescribeClusters"
         ]
         Resource = "*"
       },
-      # 4. SNS
+
+      # -------------------------------------------------------
+      # 4. Observability (CloudWatch & Logs & SNS)
+      # -------------------------------------------------------
       {
         Effect = "Allow"
         Action = [
+          # CloudWatch Alarms
+          "cloudwatch:PutMetricAlarm",
+          "cloudwatch:DeleteAlarms",
+          "cloudwatch:DescribeAlarms",
+          "cloudwatch:EnableAlarmActions",
+          "cloudwatch:DisableAlarmActions",
+          "cloudwatch:GetMetricStatistics",
+          "cloudwatch:ListMetrics",
+          # CloudWatch Logs
+          "logs:CreateLogGroup",
+          "logs:PutRetentionPolicy",
+          "logs:DescribeLogGroups",
+          # SNS
           "sns:Publish",
           "sns:Subscribe",
           "sns:Unsubscribe",
@@ -125,7 +155,49 @@ policy = jsonencode({
           "sns:DeleteTopic",
           "sns:ListTopics",
           "sns:GetTopicAttributes",
-          "sns:SetTopicAttributes"
+          "sns:SetTopicAttributes",
+          "sns:AddPermission"
+        ]
+        Resource = "*"
+      },
+
+      # -------------------------------------------------------
+      # 5. Network & Load Balancer (VPC, SG, ALB)
+      # -------------------------------------------------------
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:Describe*",
+          "ec2:CreateSecurityGroup",
+          "ec2:DeleteSecurityGroup",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress",
+          "ec2:CreateTags",
+          "elasticloadbalancing:*"
+        ]
+        Resource = "*"
+      },
+
+      # -------------------------------------------------------
+      # 6. IAM Management
+      # -------------------------------------------------------
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:GetRole",
+          "iam:PassRole",
+          "iam:PutRolePolicy", 
+          "iam:DeleteRolePolicy",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:ListAttachedRolePolicies",
+          "iam:ListRolePolicies",
+          "iam:GetRolePolicy",
+          "iam:TagRole"
         ]
         Resource = "*"
       }
