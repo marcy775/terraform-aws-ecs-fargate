@@ -9,3 +9,7 @@ output "alb_sg" {
 output "aws_lb_listener" {
   value = aws_lb_listener.tf_alb_listener
 }
+
+output "alb_arn_suffix" {
+  value = aws_lb.tf_alb.arn_suffix
+}

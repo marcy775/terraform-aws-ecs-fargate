@@ -87,6 +87,7 @@ module "cloudwatch" {
 
   name = var.name
   sns_topic_arn = module.sns.sns_topic_arn
+  alb_arn_suffix = module.alb.alb_arn_suffix
 }
 
 ################################
