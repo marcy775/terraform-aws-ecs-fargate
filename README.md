@@ -15,7 +15,7 @@
 
 | カテゴリ | 詳細 |
 | :--- | :--- |
-| **IaC** | Terraform v1.x (Module設計) |
+| **IaC** | Terraform v1.14.2 (Module設計) |
 | **Compute** | Amazon ECS (Fargate) |
 | **Container Registry** | Amazon ECR |
 | **Network** | VPC, Public/Private Subnet, ALB, VPC Endpoints |
