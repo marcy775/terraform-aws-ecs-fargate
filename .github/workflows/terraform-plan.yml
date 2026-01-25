@@ -30,7 +30,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
               
-            - name: Terraform Security Scan
+            - name: Terraform Security Scan 
               uses: aquasecurity/tfsec-action@v1.0.0
               with:
                 soft_fail: true
