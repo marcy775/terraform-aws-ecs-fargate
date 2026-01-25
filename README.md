@@ -94,6 +94,8 @@ AWS リソースの具体的な定義を行う「部品」です。
 │   ├── ecr/
 │   ├── iam/
 │   ├── sns/
+│   ├── s3/
+│   ├── dynamodb/
 │   └── cloudwatch/
 ├── .github/
 │   └── workflows/
