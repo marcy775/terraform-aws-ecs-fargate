@@ -23,6 +23,8 @@ resource "aws_vpc_security_group_egress_rule" "alb_outbound" {
 }
 
 # ALB
+# tfsec:ignore:aws-elb-alb-access-logs-enabled ポートフォリオ用途のため、S3コスト観点でアクセスログ出力は無効化
+# tfsec:ignore:aws-elb-drop-invalid-headers ポートフォリオ用途のため許容（実本番環境では有効化を推奨）
 resource "aws_lb" "tf_alb" {
   name = "${var.name}-alb"
   internal = false
@@ -58,7 +60,9 @@ resource "aws_lb_target_group" "tf_alb_tg" {
   }
 }
 
+
 # ALB listener
+# tfsec:ignore:aws-elb-http-not-used ドメイン/ACM証明書取得のコスト・維持費を考慮し、ポートフォリオ検証用としてHTTPを許容
 resource "aws_lb_listener" "tf_alb_listener" {
   load_balancer_arn = aws_lb.tf_alb.arn
   port = 80
