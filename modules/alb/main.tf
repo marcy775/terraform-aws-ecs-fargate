@@ -24,7 +24,8 @@ resource "aws_vpc_security_group_egress_rule" "alb_outbound" {
 
 # ALB
 # tfsec:ignore:aws-elb-alb-access-logs-enabled ポートフォリオ用途のため、S3コスト観点でアクセスログ出力は無効化
-# tfsec:ignore:aws-elb-drop-invalid-headers ポートフォリオ用途のため許容（実本番環境では有効化を推奨）
+# tfsec:ignore:aws-elb-drop-invalid-headers ポートフォリオ用途のため許容（実本番環境では有効化を推奨）。
+
 resource "aws_lb" "tf_alb" {
   name = "${var.name}-alb"
   internal = false
