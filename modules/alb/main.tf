@@ -3,6 +3,7 @@ resource "aws_security_group" "alb_sg" {
   name = "${var.name}-alb-sg"
   description = "ALB security group"
   vpc_id = var.vpc_id
+  
 }
 
 # ALB sg ingress
