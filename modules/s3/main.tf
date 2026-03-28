@@ -1,6 +1,7 @@
 # s3 
 resource "aws_s3_bucket" "tf_s3" {
   bucket = "${var.name}-bucket"
+  force_destroy = true
 }
 
 # s3 versions
