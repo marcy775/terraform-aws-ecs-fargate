@@ -1,11 +1,11 @@
 name: Build and Push Docker Image to ECR
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'app/**'
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'app/**'
   workflow_dispatch:
 
 permissions:
