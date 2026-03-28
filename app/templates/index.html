@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>オブザーバビリティ・ダンジョン</title>
+    <link href="https://unpkg.com/nes.css@latest/css/nes.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <style>
+        body {
+            /* 日本語フォントを優先して指定 */
+            font-family: 'DotGothic16', 'Press Start 2P', sans-serif;
+            background-color: #212529;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+        }
+        .rpg-window {
+            margin-top: 20px;
+        }
+        .character-sprite {
+            width: 64px;
+            height: 64px;
+            image-rendering: pixelated; /* ドット絵をくっきり表示 */
+        }
+        /* ボタンのフォントも日本語ドット絵を適用 */
+        .nes-btn {
+            font-family: 'DotGothic16', 'Press Start 2P', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #f7d51d; font-size: 28px;">オブザーバビリティ・ダンジョン</h1>
+
+        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAARElEQVQYV2P8z8DARIABmIEmwAhiM5AFGIEshC4IE0CXhAnCBNAF4ALogogFMAVBCmAKghSAFAArwFcAVgCvAFYAF8ZfAAbzFAU65K7eAAAAAElFTKSuQmCC" class="character-sprite" alt="SRE Hero">
+            <div class="nes-balloon from-left is-dark">
+                <p>ようこそ、SREの勇者よ！<br>ボタンをおして、APIダンジョンを たんさく するのじゃ。</p>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <button type="button" class="nes-btn is-primary" onclick="callApi()">たたかう (API実行)</button>
+            <a href="/metrics" target="_blank" class="nes-btn is-success" style="margin-left: 10px;">メトリクスをみる</a>
+        </div>
+
+        <div class="nes-container is-dark with-title rpg-window">
+            <p class="title">バトルログ</p>
+            <div id="log-content" style="height: 150px; overflow-y: auto; font-size: 14px;">
+                > ぼうけんの じゅんびが できた…<br>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function callApi() {
+            const logContent = document.getElementById('log-content');
+            logContent.innerHTML += '> APIに こうげき！<br>';
+            logContent.scrollTop = logContent.scrollHeight; // スクロールを一番下に
+
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Python側からの英語メッセージを画面上は日本語で表示
+                    logContent.innerHTML += `<span style="color: #4aa088;">> せいこう： データを てにいれた！ (処理時間: ${data.latency})</span><br>`;
+                } else {
+                    logContent.innerHTML += `<span style="color: #e76e55;">> エラー： つうこんの いちげき！ (500 Error)</span><br>`;
+                }
+            } catch (error) {
+                logContent.innerHTML += `<span style="color: #e76e55;">> つうしんエラーが おきた。</span><br>`;
+            }
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+    </script>
+</body>
+</html>
