@@ -1,12 +1,12 @@
 name: "Terraform Apply"
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'env/**'
-      - 'modules/**'
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'env/**'
+  #     - 'modules/**'
   workflow_dispatch:
 
 permissions:
