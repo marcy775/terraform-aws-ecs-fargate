@@ -1,6 +1,7 @@
 # ECR repository
 resource "aws_ecr_repository" "tf_ecr" {
-  name                 = "${var.name}-ecr"
+  name = "${var.name}-ecr"
+  force_delete = true
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
