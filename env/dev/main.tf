@@ -1,12 +1,12 @@
 # backend.tf
 terraform {
-  # backend "s3" {
-  #   bucket = "kirigeso-bucket"
-  #   key = "terraform.tfstate"
-  #   region = "ap-northeast-1"
-  #   encrypt = true
-  #   dynamodb_table = "kirigeso-dynamodb-table"
-  # }
+  backend "s3" {
+    bucket = "kirigeso-bucket"
+    key = "terraform.tfstate"
+    region = "ap-northeast-1"
+    encrypt = true
+    dynamodb_table = "kirigeso-dynamodb-table"
+  }
 }
 
 ################################
