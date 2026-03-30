@@ -174,7 +174,11 @@ policy = jsonencode({
           "ec2:AuthorizeSecurityGroupEgress",
           "ec2:RevokeSecurityGroupIngress",
           "ec2:RevokeSecurityGroupEgress",
+          "ec2:ModifySecurityGroupRules",                  
+          "ec2:UpdateSecurityGroupRuleDescriptionsIngress",
+          "ec2:UpdateSecurityGroupRuleDescriptionsEgress", 
           "ec2:CreateTags",
+          "ec2:DeleteTags",
           "elasticloadbalancing:*"
         ]
         Resource = "*"
