@@ -32,8 +32,8 @@ resource "aws_vpc_security_group_ingress_rule" "ecs_inbound" {
   security_group_id = aws_security_group.tf_ecs_sg.id
 
   ip_protocol = "tcp"
-  from_port = 80
-  to_port = 80
+  from_port = 8080
+  to_port = 8080
   referenced_security_group_id = var.alb_sg_id
 }
 
@@ -59,7 +59,7 @@ resource "aws_ecs_task_definition" "tf_ecs_td" {
         image = "${var.ecr_repository_url}:latest"
         portMappings = [
             {
-                containerPort = 80
+                containerPort = 8080
             }
         ]
 
@@ -104,6 +104,6 @@ resource "aws_ecs_service" "tf_ecs_service" {
   load_balancer {
     target_group_arn = var.alb_tg_arn
     container_name = "${var.name}-container"
-    container_port = 80
+    container_port = 8080
   }
 }
