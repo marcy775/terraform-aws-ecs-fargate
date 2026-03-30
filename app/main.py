@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI, Response, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from prometheus_client import make_asgi_app, Counter, Histogram
 
 # 1. Logs: 構造化ログ
@@ -11,6 +12,9 @@ logging.basicConfig(level=logging.INFO, format='{"time": "%(asctime)s", "level":
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+# HTML画像
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # HTMLテンプレートの設定
 templates = Jinja2Templates(directory="templates")

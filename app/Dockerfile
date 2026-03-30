@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir opentelemetry-distro opentelemetry-instrumentatio
 # アプリケーションコードとテンプレートのコピー
 COPY main.py .
 COPY templates/ ./templates/
+COPY static/ ./static/
 
 # 実行ユーザーを非rootに変更（セキュリティのベストプラクティス）
 RUN useradd -m appuser
