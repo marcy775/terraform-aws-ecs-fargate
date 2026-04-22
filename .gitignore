@@ -3,5 +3,8 @@
 *.tfstate
 *.tfstate.*
 
+# docker
+docker-compose.yml
+
 # terraform.tfvars はコメントアウトするか、削除してGit管理下に置く！
 # *.tfvars

@@ -25,13 +25,18 @@ resource "aws_iam_role_policy_attachment" "tf_ecs_role_add" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# X-Ray write access policy attach
+resource "aws_iam_role_policy_attachment" "tf_ecs_xray_add" {
+  role       = aws_iam_role.tf_ecs_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+}
+
 
 # GitHub Actions OIDC
 resource "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
   client_id_list = [ "sts.amazonaws.com" ]
 }
-
 
 # GitHub Actions ECS/ECR
 resource "aws_iam_role" "ecs_cicd_oidc_role" {

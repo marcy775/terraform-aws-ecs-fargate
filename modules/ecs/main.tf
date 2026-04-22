@@ -52,6 +52,7 @@ resource "aws_ecs_task_definition" "tf_ecs_td" {
   cpu = 256
   memory = 512
   execution_role_arn = var.role_arn
+  task_role_arn = var.role_arn
 
   container_definitions = jsonencode([
     {
@@ -71,6 +72,26 @@ resource "aws_ecs_task_definition" "tf_ecs_td" {
                 awslogs-group = aws_cloudwatch_log_group.tf_ecs_log.name
                 awslogs-region = var.region
                 awslogs-stream-prefix = "ecs"
+            }
+        }
+    },
+    {
+        name = "${var.name}-aws-otel-collector"
+        image = "public.ecr.aws/aws-observability/aws-otel-collector:latest"
+        
+        command = [
+            "--config=/etc/ecs/ecs-default-config.yaml"
+        ]
+        
+        portMappings = []
+        essential = false
+
+        logConfiguration = {
+            logDriver = "awslogs"
+            options = {
+                awslogs-group = aws_cloudwatch_log_group.tf_ecs_log.name
+                awslogs-region = var.region
+                awslogs-stream-prefix = "adot"
             }
         }
     }
