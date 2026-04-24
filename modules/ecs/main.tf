@@ -77,11 +77,9 @@ resource "aws_ecs_task_definition" "tf_ecs_td" {
     },
     {
         name = "${var.name}-aws-otel-collector"
-        image = "public.ecr.aws/aws-observability/aws-otel-collector:latest"
+        image = "729166439606.dkr.ecr.ap-northeast-1.amazonaws.com/${var.name}-adot-collector:latest"
         
-        command = [
-            "--config=/etc/ecs/ecs-default-config.yaml"
-        ]
+        command = ["--config=/etc/ecs/ecs-default-config.yaml"]
         
         portMappings = []
         essential = false

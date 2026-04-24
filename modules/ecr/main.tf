@@ -9,6 +9,12 @@ resource "aws_ecr_repository" "tf_ecr" {
   }
 }
 
+# ADOT repository
+resource "aws_ecr_repository" "adot_repo" {
+  name                 = "${var.name}-adot-collector"
+  image_tag_mutability = "MUTABLE"
+}
+
 # ECR lifecycle policy
 resource "aws_ecr_lifecycle_policy" "tf_ecr_lifecycle" {
   repository = aws_ecr_repository.tf_ecr.name
