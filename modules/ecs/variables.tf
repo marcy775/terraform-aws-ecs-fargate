@@ -7,6 +7,10 @@ variable "ecr_repository_url" {
   type = string
 }
 
+variable "adot_repository_url" {
+  type = string
+}
+
 variable "region" {
   type = string
 }
