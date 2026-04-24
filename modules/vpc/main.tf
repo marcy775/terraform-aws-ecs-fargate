@@ -146,3 +146,14 @@ resource "aws_vpc_endpoint" "S3" {
 
   route_table_ids = aws_route_table.tf_private_route[*].id
 }
+
+# X-Ra VPCエンドポイント
+resource "aws_vpc_endpoint" "xray" {
+  vpc_id = aws_vpc.tf_vpc.id
+  service_name = "com.amazonaws.${var.region}.xray"
+  vpc_endpoint_type = "Interface"
+  
+  subnet_ids = aws_subnet.tf_private_subnet[*].id
+  security_group_ids = [ aws_security_group.tf_endpoint_sg.id ]
+  private_dns_enabled = true
+}

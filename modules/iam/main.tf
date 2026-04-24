@@ -31,6 +31,12 @@ resource "aws_iam_role_policy_attachment" "tf_ecs_xray_add" {
   policy_arn = "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
 }
 
+# ADOT access policy attach
+resource "aws_iam_role_policy_attachment" "tf_ecs_adot_metrics_add" {
+  role       = aws_iam_role.tf_ecs_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 
 # GitHub Actions OIDC
 resource "aws_iam_openid_connect_provider" "github" {
