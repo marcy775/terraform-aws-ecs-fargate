@@ -21,7 +21,7 @@
 | **Network** | VPC, Public/Private Subnet, ALB, VPC Endpoints |
 | **CI/CD** | GitHub Actions (GitOps) |
 | **Security** | IAM (Least Privilege), OIDC, tfsec |
-| **Observability** | CloudWatch (Logs, Metrics, Alarm), SNS |
+| **Observability** | AWS X-Ray, OpenTelemetry(ADOT), CloudWatch (Logs, Metrics, Alarm), SNS |
 | **State Management** | Amazon S3 + DynamoDB (State Lock) |
 
 ---
@@ -79,6 +79,14 @@ ECS の **Deployment Circuit Breaker** を有効化しています。
 - **ECR**: 過去のイメージが無限に溜まらないよう、最新の 10 世代のみを保持し、古いイメージを自動削除する設定を入れています。
 - **S3 (State Bucket)**: Terraform State のバージョニングを有効化しつつ、古すぎるバージョン（非現行バージョン）を自動的にクリーンアップするルールを適用し、容量を節約しています。
 
+### 6. 可観測性（Observability）の実装
+障害発生時に「システム内のどこでボトルネックが起きているか」を開発者が即座に特定できるよう、分散トレーシング基盤を構築しました。
+
+- OpenTelemetryによる計装とサイドカーパターンの採用:
+    アプリケーション（FastAPI）には特定のベンダーに依存しないOpenTelemetryを組み込み、トレースデータの翻訳やAWS X-Rayへの送信処理はすべてADOT（AWS Distro for OpenTelemetry）コンテナをサイドカーとして配置して引き受けさせました。これにより、開発者はビジネスロジックの実装に専念でき、インフラ側で通信の再送や認証を肩代わりする「関心の分離」を実現しています。
+
+- 閉域網でのセキュアなバケツリレー:
+    タスク内のコンテナ間は localhost（gRPC）で高速に連携し、外部への送信はVPCエンドポイントを経由させることで、インターネットに出ることなくセキュアにトレースデータをAWS X-Rayへ届けるアーキテクチャを組んでいます。
 ---
 
 ## 🔧 Terraform 設計戦略
@@ -175,6 +183,23 @@ Terraform の実行環境をローカル（AdministratorAccess）から GitHub A
 - **リソース操作**: VPC, ALB, ECS, CloudWatch へのフルアクセス
 - **IAM 操作**: `iam:PassRole` や `iam:CreateRole`（Terraform がロールを作成・紐付けするために必須）
 
+
+### 閉域網におけるADOTサイドカーの導入と「見えない通信」の壁
+OpenTelemetryとX-Rayを連携させる際、複数のインフラ的な壁に直面し、SREとしてのトラブルシューティング能力が試されました。
+
+**【課題と仮説検証のプロセス】**
+
+1. パブリックイメージの取得タイムアウト:
+    NAT Gatewayを持たないプライベートサブネットのため、public.ecr.aws からADOTのイメージを取得できずタスクが起動しませんでした。解決策として、手元のPCから自身のプライベートECRへイメージを「逆輸入（ミラーリング）」し、VPCエンドポイント（dkr/api）経由で安全にPullする構成に変更しました。
+
+2. 権限と出口（VPCエンドポイント）の欠如:
+    コンテナは起動したものの、X-Rayにトレースが表示されませんでした。CloudWatchのADOTコンテナのログ（一次情報）を調査した結果、2つの原因を特定しました。
+
+    - メトリクス送信用の CloudWatchAgentServerPolicy のアタッチ漏れによる権限エラー。
+    - X-Rayサービス自体へ到達するための「X-Ray用VPCエンドポイント」の作成漏れ。
+
+**【学び】**
+「ログという一次情報を起点にエラーを特定する」「ネットワークの物理的な出口（VPCエンドポイント）と論理的な権限（IAM）を分けて考える」という、インフラとアプリケーションの境界線で起こるトラブルを解決する非常に実践的な経験を得ることができました。
 ---
 
 ## 🚀 今後の展望
@@ -189,10 +214,9 @@ Terraform の実行環境をローカル（AdministratorAccess）から GitHub A
 ### 3. AWS WAF によるセキュリティ強化
 ALB に **AWS WAF (Web Application Firewall)** をアタッチし、一般的な Web 脆弱性（OWASP Top 10）への防御層を追加することを検討しています。
 
-### 4. 可観測性 (Observability) の深化
-現在はメトリクス監視が中心ですが、より深い異常検知と可視化を目指します。
-- **CloudWatch Logs Insights**: 特定のエラーメッセージ（例: `Exception`, `Timeout`）をクエリで抽出し、アラート発火させる仕組みの導入。
-- **Dashboard 整備**: 「Golden Signals（レイテンシ、トラフィック、エラー、サチュレーション）」を一覧できる CloudWatch Dashboard の作成。
+### 4. 可観測性 (Observability) のさらなる深化
+X-Rayによる分散トレーシング（Trace）と、CloudWatchによるメトリクス（Metric）、ログ（Log）の基本基盤が整いました。
+今後は「トレースIDをアプリケーションの標準ログにも自動付与する」仕組みを追加し、エラー発生時に **「X-Rayのグラフから、該当リクエストのCloudWatch Logsへシームレスにジャンプして原因を特定できる状態（TraceとLogの相関付け）」**を目指します。
 ---
 
 ## 補足
