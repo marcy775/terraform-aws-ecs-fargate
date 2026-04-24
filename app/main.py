@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from prometheus_client import make_asgi_app, Counter, Histogram
 from opentelemetry import trace
+from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -19,8 +20,12 @@ logging.basicConfig(level=logging.INFO, format='{"time": "%(asctime)s", "level":
 logger = logging.getLogger(__name__)
 
 # 2. X-Ray (ADOT) トレーシング設定
+resource = Resource(attributes={"service.name": "ecs-portfolio-fastapi"})
 trace.set_tracer_provider(
-    TracerProvider(id_generator=AwsXRayIdGenerator())
+    TracerProvider(
+        id_generator=AwsXRayIdGenerator(),
+        resource=resource
+    )
 )
 
 # 出力先を「隣にいるADOTコンテナ」のポート4317(gRPC)に変更
@@ -44,8 +49,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # /metrics エンドポイントを追加
-# REQUEST_COUNT = Counter('app_request_count_total', 'Total HTTP Requests', ['method', 'endpoint', 'http_status'])
-# REQUEST_LATENCY = Histogram('app_request_latency_seconds', 'HTTP Request Latency', ['endpoint'])
+REQUEST_COUNT = Counter('app_request_count_total', 'Total HTTP Requests', ['method', 'endpoint', 'http_status'])
+REQUEST_LATENCY = Histogram('app_request_latency_seconds', 'HTTP Request Latency', ['endpoint'])
 metrics_app = make_asgi_app()
 app.mount("/metrics", metrics_app)
 
@@ -93,12 +98,12 @@ def get_data(response: Response):
     time.sleep(random.uniform(0.1, 1.0))
     
     # 意図的なエラー (約20%の確率で500エラーを返す)
-    if random.random() < 0.2:
-        response.status_code = 500
-        logger.error("Internal Server Error occurred during processing.")
-        REQUEST_COUNT.labels('GET', '/api/data', 500).inc()
-        REQUEST_LATENCY.labels('/api/data').observe(time.time() - start_time)
-        return {"error": "Critical HIT! (Server Error)"}
+    # if random.random() < 0.2:
+    #     response.status_code = 500
+    #     logger.error("Internal Server Error occurred during processing.")
+    #     REQUEST_COUNT.labels('GET', '/api/data', 500).inc()
+    #     REQUEST_LATENCY.labels('/api/data').observe(time.time() - start_time)
+    #     return {"error": "Critical HIT! (Server Error)"}
 
     logger.info("Successfully processed the request.")
     REQUEST_COUNT.labels('GET', '/api/data', 200).inc()
