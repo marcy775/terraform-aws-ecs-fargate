@@ -214,9 +214,11 @@ OpenTelemetryとX-Rayを連携させる際、複数のインフラ的な壁に�
 ### 3. AWS WAF によるセキュリティ強化
 ALB に **AWS WAF (Web Application Firewall)** をアタッチし、一般的な Web 脆弱性（OWASP Top 10）への防御層を追加することを検討しています。
 
-### 4. 可観測性 (Observability) のさらなる深化 
-X-Rayによる分散トレーシング（Trace）と、CloudWatchによるメトリクス（Metric）、ログ（Log）の基本基盤が整いました。
-今後は「トレースIDをアプリケーションの標準ログにも自動付与する」仕組みを追加し、エラー発生時に **「X-Rayのグラフから、該当リクエストのCloudWatch Logsへシームレスにジャンプして原因を特定できる状態（TraceとLogの相関付け）」**を目指します。
+### 4. 可観測性 (Observability) のさらなる深化     
+X-Rayによる分散トレーシング（Trace）と、CloudWatchによるメトリクス（Metric）、ログ（Log）の基本基盤が整いました。    
+今後は「トレースIDをアプリケーションの標準ログにも自動付与する」仕組みを追加し、    
+エラー発生時に 「X-Rayのグラフから、該当リクエストのCloudWatch Logsへシームレスにジャンプして原因を特定できる状態（TraceとLogの相関付け）」を目指します。
+
 ---
 
 ## 補足
